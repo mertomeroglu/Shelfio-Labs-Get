@@ -1,0 +1,24 @@
+{
+  "name": "getshelfio-monorepo",
+  "description": "getshelfio.com, Shelfio platformunun tanıtım, paket bilgilendirme, demo talebi ve lisans aktivasyon ön yüzünü sağlayan hizmet sitesidir.",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n frontend,backend -c cyan,blue \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "npm run build --prefix frontend",
+    "build:backend": "npm run build --prefix backend",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "npm run lint --prefix frontend",
+    "lint:backend": "npm run lint --prefix backend",
+    "typecheck": "npm run typecheck --prefix frontend && npm run typecheck --prefix backend",
+    "db:cleanup": "node scripts/cleanup/cleanupGetshelfioData.js",
+    "db:cleanup:apply": "node scripts/cleanup/cleanupGetshelfioData.js --apply --confirm CLEAN_GETSHELFIO",
+    "db:cleanup:legacy-main": "node scripts/cleanup/cleanupNonMainLicenseData.js"
+  },
+  "devDependencies": {
+    "concurrently": "9.2.1"
+  }
+}

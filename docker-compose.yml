@@ -1,0 +1,38 @@
+services:
+  shelfio-service-site:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3007}
+        NEXT_PUBLIC_COMPANY_SITE_URL: ${NEXT_PUBLIC_COMPANY_SITE_URL:-https://shelfiolabs.com/}
+        NEXT_PUBLIC_SUPPORT_EMAIL: ${NEXT_PUBLIC_SUPPORT_EMAIL:-info@shelfiolabs.com}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:4017/api}
+        NEXT_PUBLIC_SHELFIO_APP_URL: ${NEXT_PUBLIC_SHELFIO_APP_URL:-https://shelfiolabs.com/}
+    environment:
+      NODE_ENV: production
+      API_INTERNAL_BASE_URL: http://shelfio-service-api:4017/api
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:4017/api}
+      NEXT_PUBLIC_SHELFIO_APP_URL: ${NEXT_PUBLIC_SHELFIO_APP_URL:-https://shelfiolabs.com/}
+    ports:
+      - "3007:3007"
+    depends_on:
+      - shelfio-service-api
+
+  shelfio-service-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - path: ./backend/.env
+        required: false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      NODE_ENV: production
+      PORT: 4017
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3007}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-https://getshelfio.com}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3007}
+    ports:
+      - "4017:4017"

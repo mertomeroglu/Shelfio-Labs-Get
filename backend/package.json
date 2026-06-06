@@ -1,0 +1,31 @@
+{
+  "name": "getshelfio-api",
+  "description": "getshelfio.com backend API",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:migrate:prod": "node dist/db/migrate.js",
+    "db:seed": "tsx src/db/seed.ts",
+    "db:repair": "tsx src/scripts/repair.ts",
+    "start": "node dist/server.js",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "25.9.1",
+    "@types/nodemailer": "^8.0.0",
+    "@types/pg": "^8.20.0",
+    "tsx": "4.21.0",
+    "typescript": "6.0.3"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
+    "nodemailer": "^8.0.10",
+    "pg": "^8.21.0",
+    "getshelfio-monorepo": "file:.."
+  }
+}

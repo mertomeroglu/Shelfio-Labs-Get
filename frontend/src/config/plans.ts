@@ -1,0 +1,177 @@
+import type { Plan, PlanComparisonRow } from "@/types/plan";
+
+export const plans: Plan[] = [
+  {
+    id: "starter",
+    name: "Başlangıç",
+    target: "Tek mağazalı küçük işletmeler.",
+    description: "Temel stok, ürün ve kasa akışını tek mağaza için sade şekilde başlatır.",
+    priceLabel: "1 TL / ay",
+    limitLabel: "1 mağaza",
+    ctaLabel: "Başlangıç İçin Talep Oluştur",
+    highlighted: false,
+    features: [
+      "Dashboard",
+      "Ürünler",
+      "Kategoriler",
+      "Nasıl Kullanılır",
+      "Personel Yönetimi",
+      "Ayarlar",
+      "POS / Kasa",
+      "Stok İşlemleri",
+      "Rol Yönetimi",
+      "Eşleşmeler",
+      "Tedarikçiler",
+      "Bildirimler"
+    ],
+  },
+  {
+    id: "professional",
+    name: "Profesyonel",
+    target: "Aktif operasyon yöneten büyüyen mağazalar.",
+    description: "Depo, reyon, tedarik, görev ve mobil operasyonları aynı ticari akışta toplar.",
+    priceLabel: "2 TL / ay",
+    limitLabel: "Büyüyen operasyon",
+    ctaLabel: "Profesyonel Demo Talep Et",
+    highlighted: true,
+    features: [
+      "Dashboard",
+      "Ürünler",
+      "Kategoriler",
+      "Nasıl Kullanılır",
+      "Personel Yönetimi",
+      "Ayarlar",
+      "POS / Kasa",
+      "Stok İşlemleri",
+      "Rol Yönetimi",
+      "Eşleşmeler",
+      "Tedarikçiler",
+      "Bildirimler",
+      "Lokasyon Yönetimi",
+      "SKT Takibi",
+      "Depo Transfer Talepleri",
+      "Görev Planlama",
+      "Raporlar",
+      "Sipariş Önerileri",
+      "Sipariş Takibi",
+      "Sipariş Oluştur",
+      "Tedarikçi Ürünleri"
+    ],
+  },
+  {
+    id: "enterprise",
+    name: "Kurumsal",
+    target: "Zincirleşen işletmeler ve özel entegrasyon isteyen yapılar.",
+    description: "Çoklu mağaza, rol/yetki, ESL ve entegrasyon hazırlığı olan yapılar için kurgulanır.",
+    priceLabel: "3 TL / ay",
+    limitLabel: "Özel kapsam",
+    ctaLabel: "Satış Ekibiyle Görüş",
+    highlighted: false,
+    features: [
+      "Dashboard",
+      "Ürünler",
+      "Kategoriler",
+      "Nasıl Kullanılır",
+      "Personel Yönetimi",
+      "Ayarlar",
+      "POS / Kasa",
+      "Stok İşlemleri",
+      "Rol Yönetimi",
+      "Eşleşmeler",
+      "Tedarikçiler",
+      "Bildirimler",
+      "Lokasyon Yönetimi",
+      "SKT Takibi",
+      "Depo Transfer Talepleri",
+      "Görev Planlama",
+      "Raporlar",
+      "Sipariş Önerileri",
+      "Sipariş Takibi",
+      "Sipariş Oluştur",
+      "Tedarikçi Ürünleri",
+      "Taleplerim",
+      "Erişim Talepleri",
+      "Fiyat & Talep Analizi",
+      "Kampanya Yönetimi",
+      "Proximity Yönetimi",
+      "Etiket Yönetimi",
+      "Personel Mobil"
+    ],
+  },
+];
+
+export const planComparisonRows: PlanComparisonRow[] = [
+  { feature: "Dashboard", starter: true, professional: true, enterprise: true },
+  { feature: "Ürünler", starter: true, professional: true, enterprise: true },
+  { feature: "Kategoriler", starter: true, professional: true, enterprise: true },
+  { feature: "Nasıl Kullanılır", starter: true, professional: true, enterprise: true },
+  { feature: "Personel Yönetimi", starter: true, professional: true, enterprise: true },
+  { feature: "Ayarlar", starter: true, professional: true, enterprise: true },
+  { feature: "POS / Kasa", starter: true, professional: true, enterprise: true },
+  { feature: "Stok İşlemleri", starter: true, professional: true, enterprise: true },
+  { feature: "Rol Yönetimi", starter: true, professional: true, enterprise: true },
+  { feature: "Eşleşmeler", starter: true, professional: true, enterprise: true },
+  { feature: "Tedarikçiler", starter: true, professional: true, enterprise: true },
+  { feature: "Bildirimler", starter: true, professional: true, enterprise: true },
+  { feature: "Lokasyon Yönetimi", starter: false, professional: true, enterprise: true },
+  { feature: "SKT Takibi", starter: false, professional: true, enterprise: true },
+  { feature: "Depo Transfer Talepleri", starter: false, professional: true, enterprise: true },
+  { feature: "Görev Planlama", starter: false, professional: true, enterprise: true },
+  { feature: "Raporlar", starter: false, professional: true, enterprise: true },
+  { feature: "Sipariş Önerileri", starter: false, professional: true, enterprise: true },
+  { feature: "Sipariş Takibi", starter: false, professional: true, enterprise: true },
+  { feature: "Sipariş Oluştur", starter: false, professional: true, enterprise: true },
+  { feature: "Tedarikçi Ürünleri", starter: false, professional: true, enterprise: true },
+  { feature: "Taleplerim", starter: false, professional: false, enterprise: true },
+  { feature: "Erişim Talepleri", starter: false, professional: false, enterprise: true },
+  { feature: "Fiyat & Talep Analizi", starter: false, professional: false, enterprise: true },
+  { feature: "Kampanya Yönetimi", starter: false, professional: false, enterprise: true },
+  { feature: "Proximity Yönetimi", starter: false, professional: false, enterprise: true },
+  { feature: "Etiket Yönetimi", starter: false, professional: false, enterprise: true },
+  { feature: "Personel Mobil", starter: false, professional: false, enterprise: true },
+  { feature: "Mağaza limiti", starter: "1 mağaza", professional: "Büyüyen operasyon", enterprise: "Çoklu mağaza" },
+  { feature: "Kullanıcı limiti", starter: "Sınırlı", professional: "Geniş ekip", enterprise: "Rol bazlı kapsam" },
+  { feature: "Destek seviyesi", starter: "Standart", professional: "Öncelikli", enterprise: "Özel destek" },
+];
+
+export const pricingFlowSteps = [
+  "Plan seç",
+  "Demo veya teklif talebi gönder",
+  "Satış/kurulum süreci netleşir",
+  "Lisans anahtarı oluşturulur",
+  "Aktivasyon yapılır",
+  "Shelfio paneline giriş sağlanır",
+] as const;
+
+export const pricingFaqs = [
+  {
+    question: "Lisans anahtarı nasıl alınır?",
+    answer:
+      "Demo veya teklif süreci tamamlandıktan sonra lisans ve aktivasyon adımları ekibimiz tarafından planlanır.",
+  },
+  {
+    question: "Shelfio paneline herkes girebilir mi?",
+    answer:
+      "Hayır. Panel erişimi lisans, hesap ve rol/yetki kontrolleriyle çalışacak şekilde kurgulanır.",
+  },
+  {
+    question: "Demo talep ettikten sonra ne olur?",
+    answer:
+      "Talebiniz ekibimize iletilir; satış veya kurulum ekibi işletme yapınızı değerlendirir.",
+  },
+  {
+    question: "Tek mağaza ve çok mağaza farkı nedir?",
+    answer:
+      "Tek mağaza akışı daha sade stok ve POS ihtiyaçlarına odaklanır; çok mağaza yapıları rol/yetki, raporlama ve operasyon kapsamını genişletir.",
+  },
+  {
+    question: "ESL her pakette var mı?",
+    answer:
+      "ESL entegrasyonu her pakette varsayılan değildir. Profesyonel planda hazırlık, Kurumsal planda özel kapsam olarak ele alınır.",
+  },
+  {
+    question: "Ödeme ve teklif süreci nasıl ilerler?",
+    answer:
+      "Plan kapsamı netleştikten sonra ödeme, teklif ve kurulum adımları işletmenize uygun şekilde ilerletilir.",
+  },
+] as const;
