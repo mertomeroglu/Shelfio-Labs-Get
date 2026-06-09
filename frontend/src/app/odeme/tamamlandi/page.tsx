@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { routes } from "@/lib/routes";
@@ -19,9 +19,9 @@ export const metadata: Metadata = {
 export default async function CheckoutCompletePage({
   searchParams,
 }: {
-  searchParams: Promise<{ plan?: string }>;
+  searchParams: Promise<{ plan?: string; reference?: string }>;
 }) {
-  const { plan } = await searchParams;
+  const { plan, reference } = await searchParams;
   if (!plan || !planNames[plan]) redirect(routes.accountLicenses);
 
   return (
@@ -41,13 +41,19 @@ export default async function CheckoutCompletePage({
               <span>Plan</span>
               <strong>{planNames[plan]}</strong>
             </div>
+            {reference && (
+              <div>
+                <span>İşlem Referansı</span>
+                <strong style={{ wordBreak: "break-all", fontFamily: "var(--font-mono, monospace)", fontSize: "0.88rem" }}>{reference}</strong>
+              </div>
+            )}
             <div>
               <span>Lisans durumu</span>
               <strong>Aktif</strong>
             </div>
             <div>
               <span>Sonraki aksiyon</span>
-              <strong>Portal kontrolü</strong>
+              <strong>Aktivasyon adımları</strong>
             </div>
           </div>
           <div className="checkout-complete-actions">

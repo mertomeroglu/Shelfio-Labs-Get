@@ -100,45 +100,80 @@ function CheckoutContent() {
   return (
     <section className="checkout-page">
       <Container className="checkout-layout">
-        <div className="checkout-copy">
-          <p className="eyebrow">Satın alma</p>
-          <h1>{title} için ödeme bilgileri</h1>
-          <p>Plan özetinizi kontrol edin ve kart bilgilerini girerek satın alımı tamamlayın.</p>
+        <div className="checkout-main-form">
+          <div className="checkout-copy">
+            <p className="eyebrow">Satın alma</p>
+            <h1>{title}</h1>
+            <p>Lütfen fatura ve kart bilgilerinizi girerek işlemi tamamlayın.</p>
+          </div>
+          <Card className="checkout-form-card" padding="lg" variant="elevated">
+            <form className="checkout-form" onSubmit={handleSubmit} noValidate>
+              <h2 className="form-section-title">Kart Bilgileri</h2>
+              <Field id="card-name" label="Kart üzerindeki ad" value={fields.cardName} onChange={(value) => updateField("cardName", value)} />
+              <Field id="card-number" label="Kart numarası" inputMode="numeric" value={fields.cardNumber} onChange={(value) => updateField("cardNumber", value)} />
+              <div className="checkout-form__split">
+                <Field id="card-expiry" label="Son kullanma (AA/YY)" inputMode="numeric" value={fields.expDate} onChange={(value) => updateField("expDate", value)} />
+                <Field id="card-cvc" label="CVC" inputMode="numeric" value={fields.cvc} onChange={(value) => updateField("cvc", value)} />
+              </div>
+              <h2 className="form-section-title" style={{ marginTop: "16px" }}>Fatura Bilgileri</h2>
+              <Field id="billing-email" label="Fatura e-posta" type="email" value={fields.billingEmail} onChange={(value) => updateField("billingEmail", value)} />
+              <Field id="billing-name" label="Fatura unvanı / işletme adı" value={fields.billingName} onChange={(value) => updateField("billingName", value)} />
+              {error ? <p className="form-error" role="alert">{error}</p> : null}
+              <Button disabled={submitting} size="lg" type="submit" style={{ marginTop: "12px", width: "100%" }}>
+                {submitting ? "Tamamlanıyor..." : "Güvenli Ödemeyi Başlat"}
+              </Button>
+            </form>
+          </Card>
         </div>
-        <Card className="checkout-summary" padding="lg" variant="tinted">
-          <span>Seçilen plan</span>
-          <strong>{selectedPlan.name}</strong>
-          <p>{selectedPlan.limit}</p>
-          <h2>{selectedPlan.price}</h2>
-        </Card>
-        <Card className="checkout-form-card" padding="lg">
-          <form className="checkout-form" onSubmit={handleSubmit} noValidate>
-            <Field label="Kart üzerindeki ad" value={fields.cardName} onChange={(value) => updateField("cardName", value)} />
-            <Field label="Kart numarası" inputMode="numeric" value={fields.cardNumber} onChange={(value) => updateField("cardNumber", value)} />
-            <div className="checkout-form__split">
-              <Field label="Son kullanma (AA/YY)" inputMode="numeric" value={fields.expDate} onChange={(value) => updateField("expDate", value)} />
-              <Field label="CVC" inputMode="numeric" value={fields.cvc} onChange={(value) => updateField("cvc", value)} />
+
+        <div className="checkout-sidebar">
+          <Card className="checkout-summary" padding="lg" variant="tinted">
+            <div className="secure-badge">
+              <span className="secure-icon" aria-hidden="true">🔒</span>
+              <span>GÜVENLİ ÖDEME</span>
             </div>
-            <Field label="Fatura e-posta" type="email" value={fields.billingEmail} onChange={(value) => updateField("billingEmail", value)} />
-            <Field label="Fatura unvanı / işletme adı" value={fields.billingName} onChange={(value) => updateField("billingName", value)} />
-            {error ? <p className="form-error" role="alert">{error}</p> : null}
-            <Button disabled={submitting} size="lg" type="submit">
-              {submitting ? "Tamamlanıyor" : "Satın Alımı Tamamla"}
-            </Button>
-          </form>
-        </Card>
+            
+            <div className="summary-section">
+              <span className="summary-label">Seçilen Plan</span>
+              <strong className="summary-plan-name">{selectedPlan.name}</strong>
+              <p className="summary-plan-limit">{selectedPlan.limit}</p>
+            </div>
+            
+            <div className="summary-divider" />
+            
+            <div className="summary-section">
+              <span className="summary-label">İşlem Referansı</span>
+              <code className="summary-reference">{checkoutReference}</code>
+            </div>
+
+            <div className="summary-divider" />
+
+            <div className="summary-section">
+              <span className="summary-label">Toplam Tutar</span>
+              <h2 className="summary-price">{selectedPlan.price}</h2>
+            </div>
+
+            <div className="summary-divider" />
+
+            <div className="summary-description">
+              <p>Ödemeniz 256-bit SSL güvenlik protokolü ile şifrelenir. Lisansınız ödeme sonrasında anında aktif edilecektir.</p>
+            </div>
+          </Card>
+        </div>
       </Container>
     </section>
   );
 }
 
 function Field({
+  id,
   inputMode,
   label,
   onChange,
   type = "text",
   value,
 }: {
+  id: string;
   inputMode?: "email" | "numeric" | "tel" | "text";
   label: string;
   onChange: (value: string) => void;
@@ -146,10 +181,18 @@ function Field({
   value: string;
 }) {
   return (
-    <label className="form-field">
-      <span>{label}</span>
-      <input inputMode={inputMode} type={type} value={value} onChange={(event) => onChange(event.target.value)} />
-    </label>
+    <div className="form-field">
+      <label htmlFor={id}>
+        <span>{label}</span>
+      </label>
+      <input
+        id={id}
+        inputMode={inputMode}
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </div>
   );
 }
 

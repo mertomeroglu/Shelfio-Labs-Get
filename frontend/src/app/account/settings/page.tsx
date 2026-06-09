@@ -15,6 +15,7 @@ export default function AccountSettingsPage() {
   const [billingName, setBillingName] = useState("");
   const [billingEmail, setBillingEmail] = useState("");
   const [billingAddress, setBillingAddress] = useState("");
+  const [phone, setPhone] = useState("");
   const [emailNotifications, setEmailNotifications] = useState(true);
 
   // Unsaved state management
@@ -22,7 +23,8 @@ export default function AccountSettingsPage() {
     billingName: "",
     billingEmail: "",
     billingAddress: "",
-    emailNotifications: true
+    emailNotifications: true,
+    phone: ""
   });
 
   const [showSuccess, setShowSuccess] = useState(false);
@@ -50,15 +52,17 @@ export default function AccountSettingsPage() {
       .then(r => r.json())
       .then(envelope => {
         if (envelope.success && envelope.data) {
-          const { billingName: bName, billingEmail: bEmail, billingAddress: bAddress } = envelope.data;
+          const { billingName: bName, billingEmail: bEmail, billingAddress: bAddress, phone: bPhone } = envelope.data;
           setBillingName(bName || "");
           setBillingEmail(bEmail || "");
           setBillingAddress(bAddress || "");
+          setPhone(bPhone || "");
           setInitialState({
             billingName: bName || "",
             billingEmail: bEmail || "",
             billingAddress: bAddress || "",
-            emailNotifications: true
+            emailNotifications: true,
+            phone: bPhone || ""
           });
         }
       })
@@ -89,13 +93,25 @@ export default function AccountSettingsPage() {
     billingName !== initialState.billingName ||
     billingEmail !== initialState.billingEmail ||
     billingAddress !== initialState.billingAddress ||
-    emailNotifications !== initialState.emailNotifications;
+    emailNotifications !== initialState.emailNotifications ||
+    phone !== initialState.phone;
 
   function handleSaveSettings() {
+    const phoneClean = phone.trim();
+    const phoneDigits = phoneClean.replace(/\D/g, "");
+    if (!phoneClean) {
+      alert("Lütfen geçerli bir telefon numarası girin.");
+      return;
+    }
+    if (!/^[0-9\s+\-()]+$/.test(phoneClean) || phoneDigits.length < 10) {
+      alert("Lütfen geçerli bir telefon numarası girin.");
+      return;
+    }
+
     fetch("/api/account/settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ billingName, billingEmail, billingAddress })
+      body: JSON.stringify({ billingName, billingEmail, billingAddress, phone: phoneClean })
     })
       .then(r => r.json())
       .then(envelope => {
@@ -104,11 +120,14 @@ export default function AccountSettingsPage() {
             billingName,
             billingEmail,
             billingAddress,
-            emailNotifications
+            emailNotifications,
+            phone: phoneClean
           });
           setShowSuccess(true);
           window.scrollTo({ top: 0, behavior: "smooth" });
           setTimeout(() => setShowSuccess(false), 4000);
+        } else {
+          alert(envelope.message || "Ayarlar kaydedilemedi.");
         }
       })
       .catch(err => console.error("Error saving settings:", err));
@@ -118,6 +137,7 @@ export default function AccountSettingsPage() {
     setBillingName(initialState.billingName);
     setBillingEmail(initialState.billingEmail);
     setBillingAddress(initialState.billingAddress);
+    setPhone(initialState.phone);
     setEmailNotifications(initialState.emailNotifications);
   }
 
@@ -240,6 +260,7 @@ export default function AccountSettingsPage() {
               <div><dt>Yetkili</dt><dd>{user?.name ?? "Yükleniyor"}</dd></div>
               <div><dt>E-posta</dt><dd>{user?.email ?? "Yükleniyor"}</dd></div>
               <div><dt>İşletme</dt><dd>{user?.tenant.name ?? "Yükleniyor"}</dd></div>
+              <div><dt>Telefon</dt><dd>{phone || "-"}</dd></div>
             </dl>
           </div>
         </Card>
@@ -250,6 +271,7 @@ export default function AccountSettingsPage() {
             <div className="settings-form">
               <label className="form-field"><span>Fatura unvanı</span><input value={billingName} onChange={(event) => setBillingName(event.target.value)} /></label>
               <label className="form-field"><span>Fatura e-postası</span><input type="email" value={billingEmail} onChange={(event) => setBillingEmail(event.target.value)} /></label>
+              <label className="form-field"><span>Telefon</span><input type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} /></label>
               <label className="form-field"><span>Adres</span><textarea rows={3} value={billingAddress} onChange={(event) => setBillingAddress(event.target.value)} /></label>
             </div>
           </div>

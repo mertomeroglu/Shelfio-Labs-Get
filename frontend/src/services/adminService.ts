@@ -83,6 +83,7 @@ export type CreateLicensePayload = {
 export type AdminDemoRequest = {
   company: string;
   contact: string;
+  phone?: string;
   createdAt: string;
   id: string;
   licenseId?: string | null;
@@ -96,6 +97,7 @@ export type AdminCustomer = {
   email: string;
   id: string;
   name: string;
+  phone?: string;
   planName: string;
   subscriptionStatus?: string;
   storeCount: number;
@@ -151,7 +153,7 @@ export async function getAdminCustomers(): Promise<AdminCustomer[]> {
 export type CreateCustomerPayload = {
   fullName: string;
   email: string;
-  phone?: string;
+  phone: string;
   businessName: string;
   demoRequestId?: string;
   note?: string;

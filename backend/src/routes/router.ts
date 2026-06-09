@@ -498,6 +498,12 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
         sendEnvelope(response, 400, null, "Kayıt bilgileri eksik veya geçersiz.", "invalid_register_payload", false);
         return;
       }
+      const phoneClean = String(body.phone ?? "").trim();
+      const phoneDigits = phoneClean.replace(/\D/g, "");
+      if (!phoneClean || !/^[0-9\s+\-()]+$/.test(phoneClean) || phoneDigits.length < 10) {
+        sendEnvelope(response, 400, null, "Lütfen geçerli bir telefon numarası girin.", "invalid_phone", false);
+        return;
+      }
       if (body.password.length < 8) {
         sendEnvelope(response, 400, null, "Şifre en az 8 karakter olmalıdır.", "password_too_short", false);
         return;
@@ -1017,10 +1023,16 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
         [tenantId]
       );
       const tenant = result.rows[0];
+      const userResult = await query<any>(
+        `SELECT phone FROM users WHERE id = $1`,
+        [session.user.id]
+      );
+      const user = userResult.rows[0];
       sendEnvelope(response, 200, {
         billingName: tenant?.legal_name || "",
         billingEmail: tenant?.billing_email || session.user.email,
         billingAddress: tenant?.billing_address || "",
+        phone: user?.phone || "",
       }, "Ayarlar alındı.");
       return;
     }
@@ -1031,10 +1043,17 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
       const tenantId = requireCustomerTenant(session, response);
       if (!tenantId) return;
 
-      const body = await readJsonBody<{ billingName?: string; billingEmail?: string; billingAddress?: string }>(request);
+      const body = await readJsonBody<{ billingName?: string; billingEmail?: string; billingAddress?: string; phone?: string }>(request);
       const billingName = String(body?.billingName ?? "").trim();
       const billingEmail = normalizeEmail(String(body?.billingEmail ?? "").trim());
       const billingAddress = String(body?.billingAddress ?? "").trim();
+      const phone = String(body?.phone ?? "").trim();
+
+      const phoneDigits = phone.replace(/\D/g, "");
+      if (!phone || !/^[0-9\s+\-()]+$/.test(phone) || phoneDigits.length < 10) {
+        sendEnvelope(response, 400, null, "Lütfen geçerli bir telefon numarası girin.", "invalid_phone", false);
+        return;
+      }
 
       await query(
         `UPDATE tenants
@@ -1046,7 +1065,15 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
         [tenantId, billingName, billingEmail, billingAddress]
       );
 
-      sendEnvelope(response, 200, { billingName, billingEmail, billingAddress }, "Ayarlar kaydedildi.");
+      await query(
+        `UPDATE users
+         SET phone = $2,
+             updated_at = now()
+         WHERE id = $1`,
+        [session.user.id, phone]
+      );
+
+      sendEnvelope(response, 200, { billingName, billingEmail, billingAddress, phone }, "Ayarlar kaydedildi.");
       return;
     }
 
@@ -1315,8 +1342,13 @@ export async function routeRequest(request: IncomingMessage, response: ServerRes
       const demoRequestId = body?.demoRequestId ? String(body.demoRequestId).trim() : undefined;
       const note = body?.note ? limitText(String(body.note).trim(), 1000) : undefined;
 
-      if (!fullName || !email || !businessName) {
-        sendEnvelope(response, 400, null, "Ad soyad, e-posta ve işletme adı zorunludur.", "invalid_payload", false);
+      if (!fullName || !email || !businessName || !phone) {
+        sendEnvelope(response, 400, null, "Ad soyad, e-posta, telefon ve işletme adı zorunludur.", "invalid_payload", false);
+        return;
+      }
+      const phoneDigits = phone.replace(/\D/g, "");
+      if (!/^[0-9\s+\-()]+$/.test(phone) || phoneDigits.length < 10) {
+        sendEnvelope(response, 400, null, "Lütfen geçerli bir telefon numarası girin.", "invalid_phone", false);
         return;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {

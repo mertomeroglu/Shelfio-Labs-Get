@@ -369,6 +369,7 @@ export function toSessionUser(user: DbRow) {
     id: user.id,
     name: user.full_name,
     email: user.email,
+    phone: user.phone || "",
     role: user.role as Role,
     tenant: {
       id: user.tenant_id || "admin_portal",
@@ -423,6 +424,12 @@ export async function createCustomerAccountByAdmin(body: {
     const tempPassword = randomUUID() + "TempPassword123!";
     const passwordHash = await hashPassword(tempPassword);
 
+    let phone = body.phone?.trim() || null;
+    if (!phone && body.demoRequestId) {
+      const demoResult = await client.query("SELECT phone FROM demo_requests WHERE id = $1", [body.demoRequestId]);
+      phone = demoResult.rows[0]?.phone || null;
+    }
+
     await client.query(
       `INSERT INTO tenants (id, name, legal_name, status, store_limit, user_limit, store_count)
        VALUES ($1, $2, $2, 'active', 1, 5, 0)`,
@@ -437,7 +444,7 @@ export async function createCustomerAccountByAdmin(body: {
         normalizeEmail(body.email),
         passwordHash,
         body.fullName.trim() || "Shelfio Müşterisi",
-        body.phone?.trim() || null,
+        phone,
       ],
     );
     await client.query("UPDATE tenants SET owner_user_id = $1 WHERE id = $2", [userId, tenantId]);
@@ -1748,7 +1755,7 @@ function planNameToSlug(planName?: string) {
 
 export async function adminCustomers() {
   const result = await query<DbRow>(
-    `SELECT DISTINCT ON (t.id) t.*, u.email, u.full_name, p.name AS plan_name, s.status AS subscription_status
+    `SELECT DISTINCT ON (t.id) t.*, u.email, u.full_name, u.phone, p.name AS plan_name, s.status AS subscription_status
      FROM tenants t
      LEFT JOIN users u ON u.id = t.owner_user_id
      LEFT JOIN licenses l ON l.tenant_id = t.id
@@ -1761,6 +1768,7 @@ export async function adminCustomers() {
     id: row.id,
     name: row.name,
     email: row.email,
+    phone: row.phone || "",
     storeCount: row.store_count,
     planName: row.subscription_status === "active" ? row.plan_name : "Aktif plan yok",
     subscriptionStatus: row.subscription_status || "inactive",
@@ -1994,6 +2002,7 @@ export async function listDemoRequests() {
     referenceId: row.short_reference ? `DEMO-${row.short_reference}` : row.id,
     company: row.business_name,
     contact: row.email,
+    phone: row.phone || "",
     createdAt: formatDate(row.created_at),
     licenseId: row.license_id ?? null,
     rejectionReason: row.rejection_reason ?? null,

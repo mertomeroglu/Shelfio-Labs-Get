@@ -53,8 +53,19 @@ export default function AdminCustomersPage() {
     e.preventDefault();
     if (submitting) return;
 
-    if (!fullName.trim() || !email.trim() || !businessName.trim()) {
-      setModalError("Ad soyad, e-posta ve işletme adı zorunludur.");
+    const fullNameClean = fullName.trim();
+    const emailClean = email.trim();
+    const businessNameClean = businessName.trim();
+    const phoneClean = phone.trim();
+
+    if (!fullNameClean || !emailClean || !businessNameClean || !phoneClean) {
+      setModalError("Ad soyad, e-posta, telefon ve işletme adı zorunludur.");
+      return;
+    }
+
+    const phoneDigits = phoneClean.replace(/\D/g, "");
+    if (!/^[0-9\s+\-()]+$/.test(phoneClean) || phoneDigits.length < 10) {
+      setModalError("Lütfen geçerli bir telefon numarası girin.");
       return;
     }
 
@@ -64,10 +75,10 @@ export default function AdminCustomersPage() {
 
     try {
       const result = await createAdminCustomer({
-        fullName,
-        email,
-        phone: phone || undefined,
-        businessName,
+        fullName: fullNameClean,
+        email: emailClean,
+        phone: phoneClean,
+        businessName: businessNameClean,
         demoRequestId: selectedDemoId || undefined,
         note: note || undefined,
       });
@@ -157,6 +168,7 @@ export default function AdminCustomersPage() {
         <DetailDrawer onClose={() => setSelectedCustomer(null)} title="Müşteri Detayı">
           <Detail label="Müşteri adı" value={selectedCustomer.name} />
           <Detail label="E-posta" value={selectedCustomer.email} />
+          <Detail label="Telefon" value={selectedCustomer.phone || "-"} />
           <Detail label="Tenant" mono value={selectedCustomer.id} />
           <Detail label="Mağaza sayısı" value={String(selectedCustomer.storeCount)} />
           <Detail label="Plan" value={selectedCustomer.planName} />
@@ -198,6 +210,7 @@ export default function AdminCustomersPage() {
                         setFullName(found.contact.split("@")[0].toUpperCase() || "");
                         setEmail(found.contact || "");
                         setBusinessName(found.company || "");
+                        setPhone(found.phone || "");
                       }
                     }
                   }}
@@ -238,12 +251,13 @@ export default function AdminCustomersPage() {
                   />
                 </div>
                 <div className="form-field">
-                  <label htmlFor="add-customer-phone">Telefon (Opsiyonel)</label>
+                  <label htmlFor="add-customer-phone">Telefon</label>
                   <input
                     id="add-customer-phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
+                    required
                     disabled={submitting}
                     placeholder="05..."
                   />

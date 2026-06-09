@@ -8,7 +8,7 @@ import { routes } from "@/lib/routes";
 import { Button } from "@/components/ui/Button";
 
 type AuthMode = "customer" | "register" | "admin";
-type FieldErrors = Partial<Record<"businessName" | "confirmPassword" | "consent" | "email" | "form" | "fullName" | "password", string>>;
+type FieldErrors = Partial<Record<"businessName" | "confirmPassword" | "consent" | "email" | "form" | "fullName" | "password" | "phone", string>>;
 
 const authOptions: Record<AuthMode, {
   description: string;
@@ -130,7 +130,7 @@ export function LoginForm({
     if (!activeMode || submitting) return;
 
     const validationErrors = activeMode === "register"
-      ? validateRegisterFields({ businessName, confirmPassword, consent, email, fullName, password })
+      ? validateRegisterFields({ businessName, confirmPassword, consent, email, fullName, password, phone })
       : validateLoginFields(email, password);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -216,7 +216,7 @@ export function LoginForm({
                   <div className="login-form__grid">
                     <Field error={errors.fullName} id="register-full-name" label="Ad soyad" onChange={setFullName} value={fullName} />
                     <Field error={errors.email} id="register-email" label="E-posta" onChange={setEmail} type="email" value={email} />
-                    <Field id="register-phone" label="Telefon" onChange={setPhone} required={false} type="tel" value={phone} />
+                    <Field error={errors.phone} id="register-phone" label="Telefon" onChange={setPhone} required={true} type="tel" value={phone} />
                     <Field error={errors.businessName} id="register-business" label="İşletme adı" onChange={setBusinessName} value={businessName} />
                   </div>
                   <PasswordField
@@ -365,10 +365,20 @@ function validateRegisterFields(values: {
   email: string;
   fullName: string;
   password: string;
+  phone: string;
 }): FieldErrors {
   const errors: FieldErrors = {};
   if (!values.fullName.trim()) errors.fullName = "Ad soyad zorunludur.";
   if (!values.businessName.trim()) errors.businessName = "İşletme adı zorunludur.";
+  
+  const phoneClean = values.phone.trim();
+  const phoneDigits = phoneClean.replace(/\D/g, "");
+  if (!phoneClean) {
+    errors.phone = "Lütfen geçerli bir telefon numarası girin.";
+  } else if (!/^[0-9\s+\-()]+$/.test(phoneClean) || phoneDigits.length < 10) {
+    errors.phone = "Lütfen geçerli bir telefon numarası girin.";
+  }
+
   validateEmail(values.email, errors);
   validateRegisterPassword(values.password, errors);
   if (values.confirmPassword !== values.password) errors.confirmPassword = "Şifreler eşleşmiyor.";
