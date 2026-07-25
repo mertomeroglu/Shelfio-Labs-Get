@@ -4,17 +4,18 @@ function getHostname(url: string) {
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://getshelfio.com";
 const companyUrl = process.env.NEXT_PUBLIC_COMPANY_SITE_URL || "https://shelfiolabs.com/";
+const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@example.com";
 
 export const siteConfig = {
   siteName: "get.shelfio",
   productName: "Shelfio",
   companyName: "Shelfio Labs",
   description:
-    "GetShelfio, Shelfio lisans, aktivasyon, destek ve müşteri portalı süreçlerini güvenli şekilde yönetmek için tasarlanmış hizmet platformudur.",
+    "GetShelfio is the service site and customer portal surface for Shelfio demo requests, package information, license activation, support, and account workflows.",
   siteUrl,
   siteDomain: getHostname(siteUrl),
   companyUrl,
   companyDomain: getHostname(companyUrl),
-  supportEmail: "info@getshelfio.com",
+  supportEmail,
   appUrl: process.env.NEXT_PUBLIC_SHELFIO_APP_URL ?? "https://shelfiolabs.com/",
 } as const;

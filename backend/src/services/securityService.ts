@@ -2,19 +2,27 @@ import { createCipheriv, createDecipheriv, createHmac, createHash, randomBytes, 
 import bcrypt from "bcryptjs";
 
 const fallbackSecret = "development-only-change-me";
+const placeholderPattern = /^(|change-me|replace-with|development-only|default_|admin_password|customer_password)/i;
+
+function requireProductionSecret(name: string, value?: string) {
+  if (process.env.NODE_ENV !== "production") return;
+  if (!value || placeholderPattern.test(value)) {
+    throw new Error(`${name} is required in production`);
+  }
+}
 
 function getSessionSecret() {
-  if (!process.env.SESSION_SECRET && process.env.NODE_ENV === "production") {
-    throw new Error("SESSION_SECRET is required in production");
-  }
+  requireProductionSecret("SESSION_SECRET", process.env.SESSION_SECRET);
   return process.env.SESSION_SECRET || fallbackSecret;
 }
 
 function getLicensePepper() {
+  requireProductionSecret("LICENSE_KEY_PEPPER", process.env.LICENSE_KEY_PEPPER);
   return process.env.LICENSE_KEY_PEPPER || getSessionSecret();
 }
 
 function getEncryptionKey() {
+  requireProductionSecret("LICENSE_KEY_ENCRYPTION_SECRET", process.env.LICENSE_KEY_ENCRYPTION_SECRET);
   return createHash("sha256").update(process.env.LICENSE_KEY_ENCRYPTION_SECRET || getLicensePepper()).digest();
 }
 

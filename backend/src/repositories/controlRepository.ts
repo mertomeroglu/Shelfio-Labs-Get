@@ -271,11 +271,11 @@ export async function ensureCorePlans(client: DbClient = { query }) {
 }
 
 export async function seedDefaults() {
-  const adminEmail = normalizeEmail(process.env.SEED_ADMIN_EMAIL || "info@getshelfio.com");
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD || "1234";
+  const adminEmail = normalizeEmail(process.env.SEED_ADMIN_EMAIL || "admin@example.com");
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || "development-only-admin-password";
   const customerEmail = normalizeEmail(process.env.SEED_CUSTOMER_EMAIL || "customer@example.com");
-  const customerPassword = process.env.SEED_CUSTOMER_PASSWORD || "1234";
-  const licenseKey = normalizeLicenseKey(process.env.SEED_CUSTOMER_LICENSE_KEY || "SHELFIO-MAIN-2026");
+  const customerPassword = process.env.SEED_CUSTOMER_PASSWORD || "development-only-customer-password";
+  const licenseKey = normalizeLicenseKey(process.env.SEED_CUSTOMER_LICENSE_KEY || "SHELFIO-LOCAL-EXAMPLE-KEY");
 
   await transaction(async (client) => {
     await ensureCorePlans(client);

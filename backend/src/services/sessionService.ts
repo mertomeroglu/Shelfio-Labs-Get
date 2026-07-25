@@ -21,6 +21,7 @@ export type SessionPayload = {
 export const sessionCookieName = process.env.COOKIE_NAME || "shelfio_service_session";
 
 const oneDayInSeconds = 60 * 60 * 24;
+const allowedSameSiteValues = new Set(["Strict", "Lax", "None"]);
 
 export function encodeSession(payload: SessionPayload) {
   const body = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
@@ -44,7 +45,7 @@ export function decodeSession(value?: string): SessionPayload | null {
 export function setSessionCookie(response: ServerResponse, user: SessionUser) {
   const maxAge = Number(process.env.SESSION_TTL_SECONDS || oneDayInSeconds);
   const expiresAt = Math.floor(Date.now() / 1000) + maxAge;
-  const sameSite = process.env.COOKIE_SAME_SITE || "Lax";
+  const sameSite = getCookieSameSite();
   const cookie = [
     `${sessionCookieName}=${encodeURIComponent(encodeSession({ exp: expiresAt, user }))}`,
     "Path=/",
@@ -53,17 +54,29 @@ export function setSessionCookie(response: ServerResponse, user: SessionUser) {
     `SameSite=${sameSite}`,
   ];
 
-  // Auto-omit Secure attribute for local HTTP environments (localhost or 127.0.0.1)
-  const request = (response as any).req;
-  const host = request?.headers?.host || "";
-  const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
-
-  if (process.env.COOKIE_SECURE === "true" && !isLocal) {
+  if (shouldUseSecureCookie(response)) {
     cookie.push("Secure");
   }
   response.setHeader("Set-Cookie", cookie.join("; "));
 }
 
 export function clearSessionCookie(response: ServerResponse) {
-  response.setHeader("Set-Cookie", `${sessionCookieName}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax`);
+  const cookie = [`${sessionCookieName}=`, "Path=/", "Max-Age=0", "HttpOnly", `SameSite=${getCookieSameSite()}`];
+  if (shouldUseSecureCookie(response)) cookie.push("Secure");
+  response.setHeader("Set-Cookie", cookie.join("; "));
+}
+
+function getCookieSameSite() {
+  const rawValue = process.env.COOKIE_SAME_SITE || (process.env.NODE_ENV === "production" ? "Strict" : "Lax");
+  const normalized = rawValue.slice(0, 1).toUpperCase() + rawValue.slice(1).toLowerCase();
+  return allowedSameSiteValues.has(normalized) ? normalized : "Lax";
+}
+
+function shouldUseSecureCookie(response: ServerResponse) {
+  const request = (response as any).req;
+  const host = request?.headers?.host || "";
+  const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
+  const configured = process.env.COOKIE_SECURE;
+  const secureByDefault = process.env.NODE_ENV === "production";
+  return (configured ? configured === "true" : secureByDefault) && !isLocal;
 }

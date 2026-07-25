@@ -1,23 +1,19 @@
 services:
-  shelfio-service-site:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3007}
-        NEXT_PUBLIC_COMPANY_SITE_URL: ${NEXT_PUBLIC_COMPANY_SITE_URL:-https://shelfiolabs.com/}
-        NEXT_PUBLIC_SUPPORT_EMAIL: ${NEXT_PUBLIC_SUPPORT_EMAIL:-info@shelfiolabs.com}
-        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:4017/api}
-        NEXT_PUBLIC_SHELFIO_APP_URL: ${NEXT_PUBLIC_SHELFIO_APP_URL:-https://shelfiolabs.com/}
+  postgres:
+    image: postgres:16-alpine
     environment:
-      NODE_ENV: production
-      API_INTERNAL_BASE_URL: http://shelfio-service-api:4017/api
-      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:4017/api}
-      NEXT_PUBLIC_SHELFIO_APP_URL: ${NEXT_PUBLIC_SHELFIO_APP_URL:-https://shelfiolabs.com/}
+      POSTGRES_DB: getshelfio_local
+      POSTGRES_USER: getshelfio
+      POSTGRES_PASSWORD: getshelfio_local_dev_password
     ports:
-      - "3007:3007"
-    depends_on:
-      - shelfio-service-api
+      - "5434:5432"
+    volumes:
+      - getshelfio_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U getshelfio -d getshelfio_local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   shelfio-service-api:
     build:
@@ -26,13 +22,50 @@ services:
     env_file:
       - path: ./backend/.env
         required: false
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 4017
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3007}
-      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-https://getshelfio.com}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost:3007}
+      MAIN_APP_URL: ${MAIN_APP_URL:-http://localhost:3000}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3007}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://getshelfio:getshelfio_local_dev_password@postgres:5432/getshelfio_local}
+      DATABASE_SSL: "false"
+      SESSION_SECRET: ${SESSION_SECRET:-development-only-compose-session-secret}
+      LICENSE_KEY_PEPPER: ${LICENSE_KEY_PEPPER:-development-only-compose-license-pepper}
+      LICENSE_KEY_ENCRYPTION_SECRET: ${LICENSE_KEY_ENCRYPTION_SECRET:-development-only-compose-encryption-secret}
+      CONTROL_API_INTERNAL_SECRET: ${CONTROL_API_INTERNAL_SECRET:-development-only-compose-control-secret}
+      SUPPORT_TOKEN_SECRET: ${SUPPORT_TOKEN_SECRET:-development-only-compose-support-secret}
+      COOKIE_SECURE: "false"
+      COOKIE_SAME_SITE: lax
+      EMAIL_SEND_ENABLED: "false"
+      PAYMENT_TEST_MODE: "true"
+      CHECKOUT_ENABLED: "true"
     ports:
       - "4017:4017"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  shelfio-service-site:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3007}
+        NEXT_PUBLIC_COMPANY_SITE_URL: ${NEXT_PUBLIC_COMPANY_SITE_URL:-https://shelfiolabs.com/}
+        NEXT_PUBLIC_SUPPORT_EMAIL: ${NEXT_PUBLIC_SUPPORT_EMAIL:-support@example.com}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:4017/api}
+        NEXT_PUBLIC_SHELFIO_APP_URL: ${NEXT_PUBLIC_SHELFIO_APP_URL:-http://localhost:3000}
+    environment:
+      NODE_ENV: production
+      API_INTERNAL_BASE_URL: http://shelfio-service-api:4017/api
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:4017/api}
+      NEXT_PUBLIC_SHELFIO_APP_URL: ${NEXT_PUBLIC_SHELFIO_APP_URL:-http://localhost:3000}
+    ports:
+      - "3007:3007"
+    depends_on:
+      - shelfio-service-api
+
+volumes:
+  getshelfio_postgres_data:

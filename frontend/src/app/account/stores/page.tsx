@@ -381,7 +381,7 @@ export default function AccountStoresPage() {
                         </Button>
                       ) : (
                         <Button
-                          href={`${routes.accountActivation}?key=${license.maskedKey}`}
+                          href={routes.accountActivation}
                           size="sm"
                           style={{ flex: "1 1 auto" }}
                         >

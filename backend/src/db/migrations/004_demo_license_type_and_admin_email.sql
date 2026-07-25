@@ -50,17 +50,17 @@ WHERE plan_id = (SELECT id FROM plans WHERE slug = 'demo');
 
 UPDATE users
 SET
-  email = 'info+getshelfio-conflict-' || id || '@getshelfio.com',
+  email = 'admin+getshelfio-conflict-' || id || '@example.com',
   status = 'deleted',
   deleted_at = COALESCE(deleted_at, now()),
   updated_at = now()
-WHERE lower(email) = 'info@getshelfio.com'
+WHERE lower(email) = 'admin@example.com'
   AND role <> 'admin'
   AND deleted_at IS NULL
   AND EXISTS (
     SELECT 1
     FROM users old_admin
-    WHERE lower(old_admin.email) = 'info@shelfio.com'
+    WHERE lower(old_admin.email) = 'admin@shelfio.example'
       AND old_admin.role = 'admin'
       AND old_admin.deleted_at IS NULL
   );
@@ -68,7 +68,7 @@ WHERE lower(email) = 'info@getshelfio.com'
 WITH old_admin AS (
   SELECT *
   FROM users
-  WHERE lower(email) = 'info@shelfio.com'
+  WHERE lower(email) = 'admin@shelfio.example'
     AND role = 'admin'
     AND deleted_at IS NULL
   ORDER BY updated_at DESC
@@ -82,39 +82,39 @@ SET
   status = 'active',
   updated_at = now()
 FROM old_admin
-WHERE lower(target.email) = 'info@getshelfio.com'
+WHERE lower(target.email) = 'admin@example.com'
   AND target.role = 'admin'
   AND target.deleted_at IS NULL;
 
 UPDATE users
 SET
-  email = 'info+shelfio-old-admin-' || id || '@getshelfio.com',
+  email = 'admin+shelfio-old-admin-' || id || '@example.com',
   status = 'deleted',
   deleted_at = COALESCE(deleted_at, now()),
   updated_at = now()
-WHERE lower(email) = 'info@shelfio.com'
+WHERE lower(email) = 'admin@shelfio.example'
   AND role = 'admin'
   AND deleted_at IS NULL
   AND EXISTS (
     SELECT 1
     FROM users u
-    WHERE lower(u.email) = 'info@getshelfio.com'
+    WHERE lower(u.email) = 'admin@example.com'
       AND u.role = 'admin'
       AND u.deleted_at IS NULL
   );
 
 UPDATE users
 SET
-  email = 'info@getshelfio.com',
+  email = 'admin@example.com',
   role = 'admin',
   status = 'active',
   updated_at = now()
-WHERE lower(email) = 'info@shelfio.com'
+WHERE lower(email) = 'admin@shelfio.example'
   AND role = 'admin'
   AND deleted_at IS NULL
   AND NOT EXISTS (
     SELECT 1
     FROM users u
-    WHERE lower(u.email) = 'info@getshelfio.com'
+    WHERE lower(u.email) = 'admin@example.com'
       AND u.deleted_at IS NULL
   );

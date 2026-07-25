@@ -81,7 +81,9 @@ type MailConfig = {
 };
 
 const publicSiteUrl = (process.env.PUBLIC_SITE_URL || "https://getshelfio.com").replace(/\/$/, "");
-const publicSupportEmail = "info@getshelfio.com";
+const publicSupportEmail = process.env.PUBLIC_SUPPORT_EMAIL || "support@example.com";
+const portalLoginUrl = `${publicSiteUrl}/giris`;
+const licensePortalUrl = `${portalLoginUrl}?next=/hesap/lisanslar`;
 const mailLogoUrl = `${publicSiteUrl}/assets/brand/get-shelfio-wordmark.png`;
 
 export function isEmailConfigured() {
@@ -130,7 +132,7 @@ export async function sendLicenseCreatedMail(payload: LicenseCreatedMailPayload)
 
   const isDemo = payload.licenseType === "demo";
   const transporter = createTransport(config);
-  const systemUrl = payload.resetUrl || "https://getshelfio.com/giris?next=/hesap/lisanslar";
+  const systemUrl = payload.resetUrl || licensePortalUrl;
   const statusLabel = payload.statusLabel || (isDemo ? "Demo erişimi hazır" : "Aktif");
 
   const textContent = payload.isNewCustomer
@@ -461,7 +463,7 @@ function getMailConfig(): MailConfig {
   return {
     cc: process.env.DEMO_REQUEST_CC,
     enabled: process.env.EMAIL_SEND_ENABLED !== "false",
-    from: process.env.SMTP_FROM || "Shelfio <info@getshelfio.com>",
+    from: process.env.SMTP_FROM || `Shelfio <${publicSupportEmail}>`,
     host: process.env.SMTP_HOST,
     pass: process.env.SMTP_PASS,
     port: Number(process.env.SMTP_PORT || 587),

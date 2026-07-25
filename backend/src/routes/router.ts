@@ -90,7 +90,7 @@ import { createReference, createRawToken, hashPassword, normalizeEmail, verifyPa
 type UserRole = "customer" | "admin";
 
 function generateSupportToken(ticketId: string): string {
-  const secret = process.env.SUPPORT_TOKEN_SECRET || "default_support_secret_key_123";
+  const secret = getSupportTokenSecret();
   return crypto.createHmac("sha256", secret).update(ticketId).digest("hex");
 }
 
@@ -139,6 +139,7 @@ function setCorsHeaders(request: IncomingMessage, response: ServerResponse) {
   response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   response.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS");
   response.setHeader("Access-Control-Allow-Origin", getAllowedOrigin(request));
+  response.setHeader("Vary", "Origin");
 }
 
 function getAllowedOrigin(request: IncomingMessage) {
@@ -149,6 +150,13 @@ function getAllowedOrigin(request: IncomingMessage) {
     .filter(Boolean);
   if (requestOrigin && allowedOrigins.includes(requestOrigin)) return requestOrigin;
   return allowedOrigins[0] ?? "http://localhost:3007";
+}
+
+function getSupportTokenSecret() {
+  const configured = process.env.SUPPORT_TOKEN_SECRET;
+  if (configured) return configured;
+  if (process.env.NODE_ENV === "production") throw new Error("SUPPORT_TOKEN_SECRET is required in production");
+  return process.env.SESSION_SECRET || "development-only-support-token-secret";
 }
 
 function parseCookies(request: IncomingMessage) {

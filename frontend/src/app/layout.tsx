@@ -15,7 +15,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteUrl),
   title: {
-    default: "Anasayfa | GetShelfio",
+    default: "GetShelfio | Shelfio Service Portal",
     template: "%s | GetShelfio",
   },
   description: siteConfig.description,
@@ -23,11 +23,16 @@ export const metadata: Metadata = {
     icon: "/assets/brand/favicon.png",
   },
   openGraph: {
-    title: "Anasayfa | GetShelfio",
+    title: "GetShelfio | Shelfio Service Portal",
     description: siteConfig.description,
     siteName: siteConfig.siteName,
     type: "website",
     url: siteConfig.siteUrl,
+  },
+  twitter: {
+    card: "summary",
+    title: "GetShelfio | Shelfio Service Portal",
+    description: siteConfig.description,
   },
 };
 

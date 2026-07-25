@@ -267,7 +267,7 @@ export default function AccountLicensesPage() {
               {exportLoadingId === license.id ? "Talep oluşturuluyor..." : hasOpenExport(license.id) ? "Mağaza verisi hazırlanıyor" : "Mağaza Verilerini Talep Et"}
             </Button>
             <Button
-              href={license.status === "pending" ? `${routes.accountActivation}?key=${license.maskedKey}` : undefined}
+              href={license.status === "pending" ? routes.accountActivation : undefined}
               disabled={license.status !== "pending"}
               variant="outline"
             >
